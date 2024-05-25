@@ -518,7 +518,7 @@ module('Integration | operator-mode', function (hooks) {
           data: {
             type: 'card',
             attributes: {
-              firstName: 'Friend A',
+              name: 'Friend A',
             },
             relationships: {
               friend: {
@@ -539,7 +539,7 @@ module('Integration | operator-mode', function (hooks) {
           data: {
             type: 'card',
             attributes: {
-              firstName: 'Friend B',
+              name: 'Friend B',
             },
             relationships: {
               friend: {
@@ -574,6 +574,7 @@ module('Integration | operator-mode', function (hooks) {
             attributes: {
               title: 'Publishing Packet',
               description: 'Catalog entry for PublishingPacket',
+              isField: false,
               ref: {
                 module: `${testRealmURL}publishing-packet`,
                 name: 'PublishingPacket',
@@ -611,6 +612,7 @@ module('Integration | operator-mode', function (hooks) {
             attributes: {
               title: 'General Pet Room',
               description: 'Catalog entry for Pet Room Card',
+              isField: false,
               ref: {
                 module: `${testRealmURL}pet-room`,
                 name: 'PetRoom',
@@ -642,6 +644,7 @@ module('Integration | operator-mode', function (hooks) {
                 module: `${testRealmURL}pet`,
                 name: 'Pet',
               },
+              isField: false,
               demo: {
                 name: 'Snoopy',
               },
@@ -1497,6 +1500,63 @@ module('Integration | operator-mode', function (hooks) {
       assert
         .dom('[data-test-message-idx="0"] [data-test-command-apply="ready"]')
         .exists();
+    });
+
+    test('assures applied state displayed as a check mark even eventId in command payload is undefined', async function (assert) {
+      let id = `${testRealmURL}Person/fadhlan`;
+      await setCardInOperatorModeState(id);
+      await renderComponent(
+        class TestDriver extends GlimmerComponent {
+          <template>
+            <OperatorMode @onClose={{noop}} />
+            <CardPrerender />
+          </template>
+        },
+      );
+      await waitFor('[data-test-person="Fadhlan"]');
+
+      let roomId = await openAiAssistant();
+      await addRoomEvent(matrixService, {
+        event_id: 'event1',
+        room_id: roomId,
+        state_key: 'state',
+        type: 'm.room.message',
+        origin_server_ts: new Date(2024, 0, 3, 12, 30).getTime(),
+        sender: '@aibot:localhost',
+        content: {
+          msgtype: 'org.boxel.command',
+          formatted_body: 'Change first name to Dave',
+          format: 'org.matrix.custom.html',
+          data: JSON.stringify({
+            command: {
+              type: 'patchCard',
+              id,
+              patch: { attributes: { firstName: 'Dave' } },
+              eventId: undefined,
+            },
+          }),
+          'm.relates_to': {
+            rel_type: 'm.replace',
+            event_id: 'event1',
+          },
+        },
+        status: null,
+      });
+
+      await waitFor('[data-test-command-apply="ready"]', { count: 1 });
+
+      await click('[data-test-message-idx="0"] [data-test-command-apply]');
+      assert.dom('[data-test-apply-state="applying"]').exists({ count: 1 });
+      assert
+        .dom('[data-test-message-idx="0"] [data-test-apply-state="applying"]')
+        .exists();
+
+      await waitFor('[data-test-message-idx="0"] [data-test-patch-card-idle]');
+      assert.dom('[data-test-apply-state="applied"]').exists({ count: 1 });
+      assert
+        .dom('[data-test-message-idx="0"] [data-test-apply-state="applied"]')
+        .exists();
+      assert.dom('[data-test-person]').hasText('Dave');
     });
 
     test('it can handle an error in a card attached to a matrix message', async function (assert) {
@@ -2914,8 +2974,7 @@ module('Integration | operator-mode', function (hooks) {
       .containsText('Jackie Woody Mango');
   });
 
-  // CS-6837 - causes a loop and a crash
-  skip('can add a card to a linksTo field creating a loop', async function (assert) {
+  test('can add a card to a linksTo field creating a loop', async function (assert) {
     // Friend A already links to friend B.
     // This test links B back to A
     await setCardInOperatorModeState(`${testRealmURL}Friend/friend-b`);
@@ -2945,7 +3004,9 @@ module('Integration | operator-mode', function (hooks) {
     // Normally we'd only have an assert like this at the end that may work,
     // but the rest of the application may be broken.
 
-    assert.dom('[data-test-field="friend"]').containsText('Friend A');
+    assert
+      .dom('[data-test-stack-card] [data-test-field="friend"]')
+      .containsText('Friend A');
 
     // Instead try and go somewhere else in the application to see if it's broken
     await waitFor('[data-test-submode-switcher]');
@@ -3133,9 +3194,6 @@ module('Integration | operator-mode', function (hooks) {
       .doesNotContainText('Jackie');
     assert.dom(`[data-test-plural-view-item]`).doesNotExist();
   });
-
-  skip('can create a specialized a new card to populate a linksTo field');
-  skip('can create a specialized a new card to populate a linksToMany field');
 
   test('can close cards by clicking the header of a card deeper in the stack', async function (assert) {
     await setCardInOperatorModeState(`${testRealmURL}grid`);
@@ -3848,7 +3906,7 @@ module('Integration | operator-mode', function (hooks) {
       .dom('[data-test-overlay-card-display-name="Author"] .header-title img')
       .hasAttribute('src', 'https://example-icon.test');
 
-    await click('[data-test-author');
+    await click('[data-test-author]');
     await waitFor('[data-test-stack-card-index="1"]');
     assert.dom('[data-test-stack-card-index]').exists({ count: 2 });
     assert
