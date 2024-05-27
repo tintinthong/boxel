@@ -1,6 +1,5 @@
 import MarkdownField from 'https://cardstack.com/base/markdown';
 import BooleanField from 'https://cardstack.com/base/boolean';
-import NumberField from 'https://cardstack.com/base/number';
 import {
   CardDef,
   field,
@@ -29,13 +28,13 @@ export class Product extends CardDef {
           padding: var(--boxel-sp-xl);
         }
       </style>
-    </template>
+    </template>                                        
   };
 
   static embedded = class Embedded extends Component<typeof this> {
     <template>
       <em><@fields.title /></em>
-    </template>
+    </template>                                        
   };
 
   /*
