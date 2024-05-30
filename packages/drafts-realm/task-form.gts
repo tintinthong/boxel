@@ -177,34 +177,44 @@ class ViewSecForTaskForm extends Component<typeof TaskForm> {
   <template>
     <CardContainer @displayBoundaries={{true}} class='card-container'>
 
-      <h2> <@fields.subject.title /></h2>
+      <h2><@fields.subject.title /></h2>
 
       <div class='details-container'>
-        <FieldContainer @tag='label' @label='Related To' @vertical={{false}}>
-          <@fields.relatedTo.account />
-        </FieldContainer>
+        <div class='details-heading'>Details</div>
+        <div class='details-content'>
+          <FieldContainer @tag='label' @label='Related To' @vertical={{false}}>
+            <@fields.relatedTo.account />
+          </FieldContainer>
 
-        <FieldContainer @tag='label' @label='Due Date' @vertical={{false}}>
-          <@fields.dueDate />
-        </FieldContainer>
+          <FieldContainer @tag='label' @label='Due Date' @vertical={{false}}>
+            <@fields.dueDate />
+          </FieldContainer>
+        </div>
       </div>
-
     </CardContainer>
 
     <style>
       .card-container {
         padding: var(--boxel-sp-lg);
         display: grid;
-        gap: var(--boxel-sp);
-        background: #eeeeee50;
+        background: white;
       }
       .details-container {
-        display: block;
-        justify-content: space-between;
-        background: white;
-        padding: var(--boxel-sp-sm) var(--boxel-sp-lg);
+        background: #eeeeee20;
         border: 1px solid var(--boxel-form-control-border-color);
-        border-radius: var(--boxel-form-control-border-radius);
+        margin-top: 2rem;
+      }
+      .details-container > * + * {
+        border-top: 1px dashed var(--boxel-form-control-border-color);
+        border-bottom-width: 0px;
+      }
+      .details-content {
+        display: grid;
+        gap: var(--boxel-sp);
+        padding: var(--boxel-sp-sm) var(--boxel-sp-lg);
+      }
+      .details-heading {
+        padding: var(--boxel-sp-xs) var(--boxel-sp-sm);
       }
       h2 {
         margin: 0px;
