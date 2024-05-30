@@ -15,16 +15,29 @@ export class ItemCard extends CardDef {
   static displayName = 'Item Card';
 
   static isolated = class Isolated extends Component<typeof this> {
-    <template></template>
-  }
+    <template>
+      <ItemCardContainer>
+        <h2><@fields.title /></h2>
+        <@fields.description />
+      </ItemCardContainer>
+    </template>
+  };
 
   static embedded = class Embedded extends Component<typeof this> {
-    <template></template>
-  }
+    <template>
+      <ItemCardContainer>
+        <@fields.title />
+      </ItemCardContainer>
+    </template>
+  };
 
   static atom = class Atom extends Component<typeof this> {
-    <template></template>
-  }
+    <template>
+      <ItemCardContainer>
+        <@fields.title />
+      </ItemCardContainer>
+    </template>
+  };
 
   static edit = class Edit extends Component<typeof this> {
     <template>
