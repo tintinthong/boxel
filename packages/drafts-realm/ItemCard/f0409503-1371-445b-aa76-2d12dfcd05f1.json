@@ -3,7 +3,7 @@
     "type": "card",
     "attributes": {
       "title": "dddd",
-      "description": null,
+      "description": "descriptor",
       "thumbnailURL": null
     },
     "meta": {

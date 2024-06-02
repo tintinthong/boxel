@@ -3,22 +3,41 @@ import {
   field,
   contains,
   StringField,
+  NumberField,
+  BigIntField,
   Component,
 } from 'https://cardstack.com/base/card-api';
-
+import {
+  MonetaryAmount as MonetaryAmountField,
+  MonetaryAmountAtom,
+} from './monetary-amount';
 import { FieldContainer } from '@cardstack/boxel-ui/components';
 import GlimmerComponent from '@glimmer/component';
 
 export class ItemCard extends CardDef {
   @field title = contains(StringField);
   @field description = contains(StringField);
+  @field price = contains(MonetaryAmountField);
+  @field compareAtPrice = contains(MonetaryAmountField);
+  @field unitPrice = contains(MonetaryAmountField);
+  @field profit = contains(MonetaryAmountField);
+  @field margin = contains(BigIntField);
   static displayName = 'Item Card';
 
   static isolated = class Isolated extends Component<typeof this> {
     <template>
       <ItemCardContainer>
-        <h2><@fields.title /></h2>
-        <@fields.description />
+        <h2><@attributes.title /></h2>
+        <@attributes.description /><br />
+        Price
+        <@attributes.price /><br />
+        Compare At Price
+        <@attributes.compareAtPrice /><br />
+        Profit
+        <@attributes.profit /><br />
+        Price per item
+        <@attributes.unitPrice /><br />
+        <@attributes.margin />%
       </ItemCardContainer>
     </template>
   };
@@ -51,6 +70,29 @@ export class ItemCard extends CardDef {
           data-test-field='description'
         >
           <@fields.description />
+        </FieldContainer>
+        <FieldContainer @tag='label' @label='Price' data-test-field='price'>
+          <@fields.price />
+        </FieldContainer>
+        <FieldContainer
+          @tag='label'
+          @label='Compare At Price'
+          data-test-field='compareAtPrice'
+        >
+          <@fields.compareAtPrice />
+        </FieldContainer>
+        <FieldContainer
+          @tag='label'
+          @label='Price Per Item'
+          data-test-field='unitPrice'
+        >
+          <@fields.unitPrice />
+        </FieldContainer>
+        <FieldContainer @tag='label' @label='Profit' data-test-field='profit'>
+          <@fields.profit />
+        </FieldContainer>
+        <FieldContainer @tag='label' @label='Margin' data-test-field='margin'>
+          <@fields.margin />%
         </FieldContainer>
       </ItemCardContainer>
     </template>
