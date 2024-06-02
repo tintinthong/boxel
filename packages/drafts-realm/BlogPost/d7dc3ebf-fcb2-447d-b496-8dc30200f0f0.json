@@ -1,0 +1,25 @@
+{
+  "data": {
+    "type": "card",
+    "attributes": {
+      "title": null,
+      "slug": null,
+      "body": null,
+      "description": null,
+      "thumbnailURL": null
+    },
+    "relationships": {
+      "authorBio": {
+        "links": {
+          "self": null
+        }
+      }
+    },
+    "meta": {
+      "adoptsFrom": {
+        "module": "../blog-post",
+        "name": "BlogPost"
+      }
+    }
+  }
+}
