@@ -2,16 +2,16 @@
   "data": {
     "type": "card",
     "attributes": {
-      "title": "dddd",
-      "description": "descriptor",
+      "title": null,
+      "description": null,
       "price": {
-        "amount": 40.5
+        "amount": null
       },
       "compareAtPrice": {
-        "amount": 2
+        "amount": null
       },
       "unitPrice": {
-        "amount": 23
+        "amount": null
       },
       "profit": {
         "amount": null
