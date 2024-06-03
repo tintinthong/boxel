@@ -1,9 +1,9 @@
+import NumberField from 'https://cardstack.com/base/number';
 import {
   CardDef,
   field,
   contains,
   StringField,
-  NumberField,
   BigIntField,
   Component,
 } from 'https://cardstack.com/base/card-api';
@@ -21,7 +21,7 @@ export class ItemCard extends CardDef {
   @field compareAtPrice = contains(MonetaryAmountField);
   @field unitPrice = contains(MonetaryAmountField);
   @field profit = contains(MonetaryAmountField);
-  @field margin = contains(BigIntField);
+  @field margin = contains(NumberField);
   static displayName = 'Item Card';
 
   static isolated = class Isolated extends Component<typeof this> {
