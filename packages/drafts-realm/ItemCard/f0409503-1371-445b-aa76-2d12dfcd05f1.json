@@ -4,7 +4,42 @@
     "attributes": {
       "title": "dddd",
       "description": "descriptor",
+      "price": {
+        "amount": 400
+      },
+      "compareAtPrice": {
+        "amount": 2
+      },
+      "unitPrice": {
+        "amount": 23
+      },
+      "profit": {
+        "amount": null
+      },
+      "margin": null,
       "thumbnailURL": null
+    },
+    "relationships": {
+      "price.currency": {
+        "links": {
+          "self": null
+        }
+      },
+      "compareAtPrice.currency": {
+        "links": {
+          "self": null
+        }
+      },
+      "unitPrice.currency": {
+        "links": {
+          "self": null
+        }
+      },
+      "profit.currency": {
+        "links": {
+          "self": null
+        }
+      }
     },
     "meta": {
       "adoptsFrom": {
