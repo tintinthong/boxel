@@ -1,0 +1,43 @@
+{
+  "data": {
+    "type": "card",
+    "attributes": {
+      "images": [],
+      "unitPrice": {
+        "amount": null
+      },
+      "shippingCost": {
+        "amount": null
+      },
+      "leadTimeDays": null,
+      "deliveryWindowDays": null,
+      "isReturnable": false,
+      "details": null,
+      "title": null,
+      "description": null
+    },
+    "relationships": {
+      "seller": {
+        "links": {
+          "self": null
+        }
+      },
+      "unitPrice.currency": {
+        "links": {
+          "self": null
+        }
+      },
+      "shippingCost.currency": {
+        "links": {
+          "self": null
+        }
+      }
+    },
+    "meta": {
+      "adoptsFrom": {
+        "module": "../product",
+        "name": "Product"
+      }
+    }
+  }
+}
