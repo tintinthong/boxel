@@ -58,55 +58,55 @@ export class ItemCard extends CardDef {
     </template>
   };
 
-  static edit = class Edit extends Component<typeof this> {
-    <template>
-      <div class='item-card'>
-        <ItemCardContainer>
-          <FieldContainer @tag='label' @label='Title' data-test-field='title'>
-            <@fields.title />
-          </FieldContainer>
-          <FieldContainer
-            @tag='label'
-            @label='Description'
-            data-test-field='description'
-          >
-            <@fields.description />
-          </FieldContainer>
-          <FieldContainer @tag='label' @label='Price' data-test-field='price'>
-            <@fields.price />
-          </FieldContainer>
-          <FieldContainer
-            @tag='label'
-            @label='Compare At Price'
-            data-test-field='compareAtPrice'
-          >
-            <@fields.compareAtPrice />
-          </FieldContainer>
-          <FieldContainer
-            @tag='label'
-            @label='Price Per Item'
-            data-test-field='unitPrice'
-          >
-            <@fields.unitPrice />
-          </FieldContainer>
-          <FieldContainer
-            @tag='label'
-            @label='Profit'
-            data-test-field='profit'
-          >
-            <@fields.profit />
-          </FieldContainer>
-          <FieldContainer
-            @tag='label'
-            @label='Margin'
-            data-test-field='margin'
-          >
-            <@fields.margin />%
-          </FieldContainer>
-        </ItemCardContainer>
-      </div>
-    </template>
-  };
+  //   static edit = class Edit extends Component<typeof this> {
+  //     <template>
+  //       <div class='item-card'>
+  //         <ItemCardContainer>
+  //           <FieldContainer @tag='label' @label='Title' data-test-field='title'>
+  //             <@fields.title />
+  //           </FieldContainer>
+  //           <FieldContainer
+  //             @tag='label'
+  //             @label='Description'
+  //             data-test-field='description'
+  //           >
+  //             <@fields.description />
+  //           </FieldContainer>
+  //           <FieldContainer @tag='label' @label='Price' data-test-field='price'>
+  //             <@fields.price />
+  //           </FieldContainer>
+  //           <FieldContainer
+  //             @tag='label'
+  //             @label='Compare At Price'
+  //             data-test-field='compareAtPrice'
+  //           >
+  //             <@fields.compareAtPrice />
+  //           </FieldContainer>
+  //           <FieldContainer
+  //             @tag='label'
+  //             @label='Price Per Item'
+  //             data-test-field='unitPrice'
+  //           >
+  //             <@fields.unitPrice />
+  //           </FieldContainer>
+  //           <FieldContainer
+  //             @tag='label'
+  //             @label='Profit'
+  //             data-test-field='profit'
+  //           >
+  //             <@fields.profit />
+  //           </FieldContainer>
+  //           <FieldContainer
+  //             @tag='label'
+  //             @label='Margin'
+  //             data-test-field='margin'
+  //           >
+  //             <@fields.margin />%
+  //           </FieldContainer>
+  //         </ItemCardContainer>
+  //       </div>
+  //     </template>
+  //   };
 }
 
 interface Signature {
@@ -118,7 +118,7 @@ interface Signature {
 
 class ItemCardContainer extends GlimmerComponent<Signature> {
   <template>
-    <div class='entry' ...attributes>
+    <div class='item-card' ...attributes>
       {{yield}}
     </div>
     <style>
