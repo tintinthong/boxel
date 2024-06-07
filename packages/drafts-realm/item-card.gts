@@ -10,9 +10,26 @@ import {
 import {
   MonetaryAmount as MonetaryAmountField,
   MonetaryAmountAtom,
+  MonetaryAmount,
 } from './monetary-amount';
 import { FieldContainer } from '@cardstack/boxel-ui/components';
 import GlimmerComponent from '@glimmer/component';
+
+export function getProfit(price: MonetaryAmount, costPerItem: MonetaryAmount) {
+  let calcProfit = Number(price) - Number(costPerItem);
+  if (calcProfit > 0) {
+    return calcProfit;
+  }
+  return 0;
+}
+
+export function getMargin(price: MonetaryAmount, theProfit: MonetaryAmount) {
+  let calcMargin = (Number(theProfit) / Number(price)) * 100;
+  if (calcMargin > 0) {
+    return calcMargin;
+  }
+  return 0;
+}
 
 export class ItemCard extends CardDef {
   static displayName = 'Item Card';
@@ -21,23 +38,39 @@ export class ItemCard extends CardDef {
   @field price = contains(MonetaryAmountField);
   @field compareAtPrice = contains(MonetaryAmountField);
   @field unitPrice = contains(MonetaryAmountField);
-  @field profit = contains(MonetaryAmountField);
-  @field margin = contains(NumberField);
+  //@field profit = contains(MonetaryAmountField);
+  //@field margin = contains(NumberField);
 
   static isolated = class Isolated extends Component<typeof this> {
+    get unitPrice() {
+      return this.args.model.unitPrice;
+    }
+
+    get price() {
+      return this.args.model.price;
+    }
+
+    get profit() {
+      return getProfit(this.args.model.price, this.args.model.unitPrice);
+    }
+
+    get margin() {
+      return getMargin(this.args.model.price, this.profit);
+    }
+
     <template>
       <ItemCardContainer>
-        <h2><@attributes.title /></h2>
-        <@attributes.description /><br />
+        <h2><@fields.title /></h2>
+        <@fields.description /><br />
         Price
-        <@attributes.price /><br />
+        <@fields.price /><br />
         Compare At Price
-        <@attributes.compareAtPrice /><br />
+        <@fields.compareAtPrice /><br />
         Profit
-        <@attributes.profit /><br />
+        {{this.profit}}<br />
         Price per item
-        <@attributes.unitPrice /><br />
-        <@attributes.margin />%
+        <@fields.unitPrice /><br />
+        {{this.margin}}%
       </ItemCardContainer>
     </template>
   };
@@ -57,7 +90,6 @@ export class ItemCard extends CardDef {
       </ItemCardContainer>
     </template>
   };
-
 }
 
 interface Signature {

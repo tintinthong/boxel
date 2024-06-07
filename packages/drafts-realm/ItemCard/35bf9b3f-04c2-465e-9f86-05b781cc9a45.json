@@ -1,0 +1,42 @@
+{
+  "data": {
+    "type": "card",
+    "attributes": {
+      "title": "enchantment",
+      "description": "enchants people",
+      "price": {
+        "amount": 100
+      },
+      "compareAtPrice": {
+        "amount": 9
+      },
+      "unitPrice": {
+        "amount": 90
+      },
+      "thumbnailURL": null
+    },
+    "relationships": {
+      "price.currency": {
+        "links": {
+          "self": "http://localhost:4201/drafts/Currency/2"
+        }
+      },
+      "compareAtPrice.currency": {
+        "links": {
+          "self": "http://localhost:4201/drafts/Currency/2"
+        }
+      },
+      "unitPrice.currency": {
+        "links": {
+          "self": "http://localhost:4201/drafts/Currency/2"
+        }
+      }
+    },
+    "meta": {
+      "adoptsFrom": {
+        "module": "../item-card",
+        "name": "ItemCard"
+      }
+    }
+  }
+}
