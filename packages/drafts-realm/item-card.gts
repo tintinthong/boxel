@@ -1,18 +1,15 @@
-import NumberField from 'https://cardstack.com/base/number';
 import {
   CardDef,
   field,
   contains,
+  linksTo,
   StringField,
-  BigIntField,
   Component,
 } from 'https://cardstack.com/base/card-api';
 import {
   MonetaryAmount as MonetaryAmountField,
-  MonetaryAmountAtom,
   MonetaryAmount,
 } from './monetary-amount';
-import { FieldContainer } from '@cardstack/boxel-ui/components';
 import GlimmerComponent from '@glimmer/component';
 
 export function getProfit(price: MonetaryAmount, costPerItem: MonetaryAmount) {
@@ -38,8 +35,6 @@ export class ItemCard extends CardDef {
   @field price = contains(MonetaryAmountField);
   @field compareAtPrice = contains(MonetaryAmountField);
   @field unitPrice = contains(MonetaryAmountField);
-  //@field profit = contains(MonetaryAmountField);
-  //@field margin = contains(NumberField);
 
   static isolated = class Isolated extends Component<typeof this> {
     get title() {
