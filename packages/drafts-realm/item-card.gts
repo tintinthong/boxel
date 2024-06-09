@@ -74,19 +74,26 @@ export class ItemCard extends CardDef {
     }
 
     <template>
-      <h2>Title: {{this.title}}</h2>
-      Description: -<br />>
-      {{this.description}}<br /><br />
-      Price:
-      {{this.price}}<br />
-      Compare At Price:
-      {{this.compareAtPrice}}<br />
-      Profit:
-      {{this.profit}}<br />
-      Price per item:
-      {{this.unitPrice}}<br />
-      Margin:
-      {{this.margin}}%
+      <ItemCardContainer>
+        <h2>Title: {{this.title}}</h2>
+        Description: -<br />
+        {{this.description}}<br /><br />
+        Price:
+        {{this.price}}<br />
+        Compare At Price:
+        {{this.compareAtPrice}}<br />
+        Profit:
+        {{this.profit}}<br />
+        Price per item:
+        {{this.unitPrice}}<br />
+        Margin:
+        {{this.margin}}%
+      </ItemCardContainer>
+      <style>
+        .item-card {
+          margin: 0 2rem 0 2rem;
+        }
+      </style>
     </template>
   };
 
