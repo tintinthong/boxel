@@ -4,9 +4,11 @@ import cn from '../../helpers/cn.ts';
 import element from '../../helpers/element.ts';
 import { bool, or } from '../../helpers/truth-helpers.ts';
 import Header from '../header/index.gts';
+import cssVar from '../../helpers/css-var.ts';
 
 interface Signature {
   Args: {
+    backgroundColor?: string;
     displayBoundaries?: boolean;
     isHighlighted?: boolean;
     label?: string;
@@ -25,8 +27,12 @@ const CardContainer: TemplateOnlyComponent<Signature> = <template>
     <Tag
       class={{cn
         'boxel-card-container'
+        backgroundColor=@backgroundColor
         highlighted=@isHighlighted
         boundaries=@displayBoundaries
+      }}
+      style={{cssVar
+        bg-color=(if @backgroundColor @backgroundColor 'transparent')
       }}
       data-test-boxel-card-container
       ...attributes
@@ -43,11 +49,13 @@ const CardContainer: TemplateOnlyComponent<Signature> = <template>
   <style>
     .boxel-card-container {
       position: relative;
-      background-color: var(--boxel-light);
       border-radius: var(--boxel-border-radius);
       transition:
         max-width var(--boxel-transition),
         box-shadow var(--boxel-transition);
+    }
+    .backgroundColor {
+      background-color: var(--bg-color);
     }
     .boundaries {
       box-shadow: 0 0 0 1px var(--boxel-light-500);
