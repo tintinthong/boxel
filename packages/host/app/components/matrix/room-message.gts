@@ -233,6 +233,9 @@ export default class RoomMessage extends Component<Signature> {
     wordWrap: 'on',
     wrappingIndent: 'indent',
     fontWeight: 'bold',
+    scrollbar: {
+      alwaysConsumeMouseWheel: false,
+    },
   };
 
   @service private declare operatorModeStateService: OperatorModeStateService;
@@ -328,7 +331,7 @@ export default class RoomMessage extends Component<Signature> {
           ? new Error(e)
           : e instanceof Error
           ? e
-          : new Error('Unknown error.');
+          : new Error('Patch failed.');
       this.matrixService.failedCommandState.set(eventId, error);
     }
   });

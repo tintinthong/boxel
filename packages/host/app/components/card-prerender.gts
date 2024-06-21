@@ -1,10 +1,11 @@
 import type Owner from '@ember/owner';
+import { getOwner, setOwner } from '@ember/owner';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
 
 import { didCancel, enqueueTask, restartableTask } from 'ember-concurrency';
 
-import { type Indexer } from '@cardstack/runtime-common';
+import { type Indexer, type TextFileRef } from '@cardstack/runtime-common';
 import type { LocalPath } from '@cardstack/runtime-common/paths';
 import { readFileAsText as _readFileAsText } from '@cardstack/runtime-common/stream';
 import {
@@ -49,9 +50,9 @@ export default class CardPrerender extends Component {
     }
   }
 
-  private async fromScratch(realmURL: URL, boom?: true): Promise<IndexResults> {
+  private async fromScratch(realmURL: URL): Promise<IndexResults> {
     try {
-      let results = await this.doFromScratch.perform(realmURL, boom);
+      let results = await this.doFromScratch.perform(realmURL);
       return results;
     } catch (e: any) {
       if (!didCancel(e)) {
@@ -96,19 +97,18 @@ export default class CardPrerender extends Component {
     await register(this.fromScratch.bind(this), this.incremental.bind(this));
   });
 
-  private doFromScratch = enqueueTask(async (realmURL: URL, boom?: true) => {
+  private doFromScratch = enqueueTask(async (realmURL: URL) => {
     let { reader, indexer } = this.getRunnerParams();
     await this.resetLoaderInFastboot.perform();
-    let current = await CurrentRun.fromScratch(
-      new CurrentRun({
-        realmURL,
-        loader: this.loaderService.loader,
-        reader,
-        indexer,
-        renderCard: this.renderService.renderCard.bind(this.renderService),
-      }),
-      boom,
-    );
+    let currentRun = new CurrentRun({
+      realmURL,
+      reader,
+      indexer,
+      renderCard: this.renderService.renderCard.bind(this.renderService),
+    });
+    setOwner(currentRun, getOwner(this)!);
+
+    let current = await CurrentRun.fromScratch(currentRun);
     this.renderService.indexRunDeferred?.fulfill();
     return current;
   });
@@ -122,15 +122,17 @@ export default class CardPrerender extends Component {
     ) => {
       let { reader, indexer } = this.getRunnerParams();
       await this.resetLoaderInFastboot.perform();
-      let current = await CurrentRun.incremental({
-        url,
+      let currentRun = new CurrentRun({
         realmURL,
-        operation,
         reader,
-        ignoreData,
         indexer,
-        loader: this.loaderService.loader,
+        ignoreData: { ...ignoreData },
         renderCard: this.renderService.renderCard.bind(this.renderService),
+      });
+      setOwner(currentRun, getOwner(this)!);
+      let current = await CurrentRun.incremental(currentRun, {
+        url,
+        operation,
       });
       this.renderService.indexRunDeferred?.fulfill();
       return current;
@@ -153,7 +155,7 @@ export default class CardPrerender extends Component {
     function readFileAsText(
       path: LocalPath,
       opts?: { withFallbacks?: true },
-    ): Promise<{ content: string; lastModified: number } | undefined> {
+    ): Promise<TextFileRef | undefined> {
       return _readFileAsText(
         path,
         self.localIndexer.adapter.openFile.bind(self.localIndexer.adapter),

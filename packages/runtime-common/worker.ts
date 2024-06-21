@@ -4,9 +4,11 @@ import {
   Loader,
   readFileAsText,
   Deferred,
+  reportError,
   type Queue,
   type LocalPath,
   type RealmAdapter,
+  type TextFileRef,
 } from '.';
 import { Kind } from './realm';
 
@@ -26,7 +28,7 @@ export interface Reader {
   readFileAsText: (
     path: LocalPath,
     opts?: { withFallbacks?: true },
-  ) => Promise<{ content: string; lastModified: number } | undefined>;
+  ) => Promise<TextFileRef | undefined>;
   readdir: (
     path: string,
   ) => AsyncGenerator<{ name: string; path: string; kind: Kind }, void>;
@@ -170,7 +172,7 @@ export class Worker {
   private async readFileAsText(
     path: LocalPath,
     opts: { withFallbacks?: true } = {},
-  ): Promise<{ content: string; lastModified: number } | undefined> {
+  ): Promise<TextFileRef | undefined> {
     return readFileAsText(
       path,
       this.#realmAdapter.openFile.bind(this.#realmAdapter),
@@ -187,8 +189,23 @@ export class Worker {
       registerRunner: async (fromScratch, incremental) => {
         this.#fromScratch = fromScratch;
         this.#incremental = incremental;
-        let result = await run();
-        deferred.fulfill(result);
+        try {
+          let result = await run();
+          deferred.fulfill(result);
+        } catch (e: any) {
+          // this exception is _very_ difficult to thread thru fastboot (a
+          // `deferred.reject(e)` doesn't do the thing you'd expect). Presumably
+          // the only kind of exceptions that get raised at this level would be
+          // indexer DB issues. Let's just log in sentry here and let developers
+          // followup on the issue from the sentry logs. Likely if an exception
+          // was raised to this level the fastboot instance is probably no
+          // longer usable.
+          reportError(e);
+          console.error(
+            `Error raised during indexing has likely stopped the indexer`,
+            e,
+          );
+        }
       },
     });
     await this.#runner(optsId);
@@ -197,14 +214,13 @@ export class Worker {
     return result;
   }
 
-  private fromScratch = async (args: FromScratchArgs & { boom?: true }) => {
+  private fromScratch = async (args: FromScratchArgs) => {
     return await this.prepareAndRunJob<FromScratchResult>(async () => {
       if (!this.#fromScratch) {
         throw new Error(`Index runner has not been registered`);
       }
       let { ignoreData, stats } = await this.#fromScratch(
         new URL(args.realmURL),
-        args.boom,
       );
       return {
         ignoreData: { ...ignoreData },
