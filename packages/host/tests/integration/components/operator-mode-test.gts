@@ -16,7 +16,7 @@ import { setupRenderingTest } from 'ember-qunit';
 import window from 'ember-window-mock';
 import { setupWindowMock } from 'ember-window-mock/test-support';
 import { EventStatus } from 'matrix-js-sdk';
-import { module, test, skip } from 'qunit';
+import { module, test } from 'qunit';
 
 import { FieldContainer } from '@cardstack/boxel-ui/components';
 
@@ -30,8 +30,6 @@ import {
   addRoomEvent,
   updateRoomEvent,
 } from '@cardstack/host/lib/matrix-handlers';
-
-import type LoaderService from '@cardstack/host/services/loader-service';
 
 import OperatorModeStateService from '@cardstack/host/services/operator-mode-state-service';
 
@@ -48,6 +46,7 @@ import {
   type TestContextWithSave,
   getMonacoContent,
   waitForCodeEditor,
+  lookupLoaderService,
 } from '../../helpers';
 import { TestRealmAdapter } from '../../helpers/adapter';
 import {
@@ -71,8 +70,7 @@ module('Integration | operator-mode', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    loader = (this.owner.lookup('service:loader-service') as LoaderService)
-      .loader;
+    loader = lookupLoaderService().loader;
   });
 
   setupLocalIndexing(hooks);
@@ -466,6 +464,21 @@ module('Integration | operator-mode', function (hooks) {
             },
           },
         },
+        'Pet/buzz.json': {
+          data: {
+            type: 'card',
+            id: `${testRealmURL}Pet/buzz`,
+            attributes: {
+              name: 'Buzz',
+            },
+            meta: {
+              adoptsFrom: {
+                module: `${testRealmURL}pet`,
+                name: 'Pet',
+              },
+            },
+          },
+        },
         'Person/fadhlan.json': {
           data: {
             type: 'card',
@@ -512,6 +525,11 @@ module('Integration | operator-mode', function (hooks) {
               'friends.1': {
                 links: {
                   self: `${testRealmURL}Pet/woody`,
+                },
+              },
+              'friends.2': {
+                links: {
+                  self: `${testRealmURL}Pet/buzz`,
                 },
               },
             },
@@ -1127,7 +1145,7 @@ module('Integration | operator-mode', function (hooks) {
       await waitUntil(
         () =>
           document.querySelectorAll('[data-test-embedded-card-options-button]')
-            .length === 2,
+            .length === 3,
       );
       await percySnapshot(
         'Integration | operator-mode > matrix | it only applies changes from the chat if the stack contains a card with that ID | error fixed',
@@ -2957,7 +2975,7 @@ module('Integration | operator-mode', function (hooks) {
     await waitUntil(() => !document.querySelector('[card-catalog-modal]'));
     assert
       .dom('[data-test-field="friends"]')
-      .containsText('Jackie Woody Mango');
+      .containsText('Jackie Woody Buzz Mango');
   });
 
   test('can add a card to a linksTo field creating a loop', async function (assert) {
@@ -3162,12 +3180,15 @@ module('Integration | operator-mode', function (hooks) {
     );
 
     await waitFor(`[data-test-stack-card="${testRealmURL}Person/burcu"]`);
-    assert.dom(`[data-test-plural-view-item]`).exists({ count: 2 });
+    assert.dom(`[data-test-plural-view-item]`).exists({ count: 3 });
     await click('[data-test-edit-button]');
     assert.dom('[data-test-field="friends"]').containsText('Jackie Woody');
 
     await click(
       '[data-test-links-to-many="friends"] [data-test-item="1"] [data-test-remove-card]',
+    );
+    await click(
+      '[data-test-links-to-many="friends"] [data-test-item="0"] [data-test-remove-card]',
     );
     await click(
       '[data-test-links-to-many="friends"] [data-test-item="0"] [data-test-remove-card]',
@@ -3234,8 +3255,7 @@ module('Integration | operator-mode', function (hooks) {
     assert.dom(`[data-test-create-new-card-button]`).isNotVisible();
   });
 
-  // Flaky test: CS-6842
-  skip(`displays recently accessed card`, async function (assert) {
+  test(`displays recently accessed card`, async function (assert) {
     await setCardInOperatorModeState(`${testRealmURL}grid`);
     await renderComponent(
       class TestDriver extends GlimmerComponent {
@@ -3270,7 +3290,7 @@ module('Integration | operator-mode', function (hooks) {
 
     await waitFor(`[data-test-cards-grid-item]`);
     await click(`[data-test-cards-grid-item="${testRealmURL}Person/burcu"]`);
-    assert.dom(`[data-test-stack-card-index="1"]`).exists();
+    await waitFor(`[data-test-stack-card-index="1"]`);
 
     await focus(`[data-test-search-field]`);
     assert.dom(`[data-test-search-sheet-recent-card]`).exists({ count: 2 });
@@ -4024,9 +4044,8 @@ module('Integration | operator-mode', function (hooks) {
     assert
       .dom('[data-test-card-url-bar-error]')
       .containsText('This resource does not exist');
-    // Percy is failing to capture this snapshot for some
-    // reason. creating issue for this CS-6780
-    // await percySnapshot(assert);
+
+    await percySnapshot(assert);
 
     await fillIn('[data-test-card-url-bar-input]', `Wrong URL`);
     await triggerKeyEvent(
@@ -4446,5 +4465,108 @@ module('Integration | operator-mode', function (hooks) {
     await waitFor(`[data-test-stack-card]`);
     assert.dom(`[data-test-stack-card]`).exists({ count: 1 });
     assert.dom(`[data-test-stack-card="${testRealmURL}Pet/mango"]`).exists();
+  });
+
+  test('can reorder linksToMany cards in edit view', async function (assert) {
+    await setCardInOperatorModeState(`${testRealmURL}grid`);
+
+    await renderComponent(
+      class TestDriver extends GlimmerComponent {
+        <template>
+          <OperatorMode @onClose={{noop}} />
+          <CardPrerender />
+        </template>
+      },
+    );
+
+    await waitFor(`[data-test-cards-grid-item]`);
+    await click(`[data-test-cards-grid-item="${testRealmURL}Person/burcu"]`);
+
+    await waitFor(`[data-test-stack-card="${testRealmURL}Person/burcu"]`);
+    assert.dom(`[data-test-plural-view-item]`).exists({ count: 3 });
+    assert.dom(`[data-test-plural-view-item="0"]`).hasText('Jackie');
+    assert.dom(`[data-test-plural-view-item="1"]`).hasText('Woody');
+    assert.dom(`[data-test-plural-view-item="2"]`).hasText('Buzz');
+
+    await click(
+      `[data-test-stack-card="${testRealmURL}Person/burcu"] [data-test-edit-button]`,
+    );
+
+    assert.dom(`[data-test-item]`).exists({ count: 3 });
+    assert.dom(`[data-test-item="0"]`).hasText('Jackie');
+    assert.dom(`[data-test-item="1"]`).hasText('Woody');
+    assert.dom(`[data-test-item="2"]`).hasText('Buzz');
+
+    let dragAndDrop = async (itemSelector: string, targetSelector: string) => {
+      let itemElement = document.querySelector(itemSelector);
+      let targetElement = document.querySelector(targetSelector);
+
+      if (!itemElement || !targetElement) {
+        throw new Error('Item or target element not found');
+      }
+
+      let itemRect = itemElement.getBoundingClientRect();
+      let targetRect = targetElement.getBoundingClientRect();
+
+      await triggerEvent(itemElement, 'mousedown', {
+        clientX: itemRect.left + itemRect.width / 2,
+        clientY: itemRect.top + itemRect.height / 2,
+      });
+
+      await triggerEvent(document, 'mousemove', {
+        clientX: itemRect.left + 1,
+        clientY: itemRect.top + 1,
+      });
+      await triggerEvent(document, 'mousemove', {
+        clientX: targetRect.left + targetRect.width / 2,
+        clientY: targetRect.top - 100,
+      });
+
+      await triggerEvent(itemElement, 'mouseup', {
+        clientX: targetRect.left + targetRect.width / 2,
+        clientY: targetRect.top - 100,
+      });
+    };
+
+    await dragAndDrop('[data-test-sort="1"]', '[data-test-sort="0"]');
+    await dragAndDrop('[data-test-sort="2"]', '[data-test-sort="1"]');
+    assert.dom(`[data-test-item]`).exists({ count: 3 });
+    assert.dom(`[data-test-item="0"]`).hasText('Woody');
+    assert.dom(`[data-test-item="1"]`).hasText('Buzz');
+    assert.dom(`[data-test-item="2"]`).hasText('Jackie');
+
+    let itemElement = document.querySelector('[data-test-item="0"]');
+    let overlayButtonElements = document.querySelectorAll(
+      `[data-test-overlay-card="${testRealmURL}Pet/woody"]`,
+    );
+    if (
+      !itemElement ||
+      !overlayButtonElements ||
+      overlayButtonElements.length === 0
+    ) {
+      throw new Error('Item or overlay button element not found');
+    }
+
+    let itemRect = itemElement.getBoundingClientRect();
+    let overlayButtonRect =
+      overlayButtonElements[
+        overlayButtonElements.length - 1
+      ].getBoundingClientRect();
+
+    assert.strictEqual(
+      Math.round(itemRect.top),
+      Math.round(overlayButtonRect.top),
+    );
+    assert.strictEqual(
+      Math.round(itemRect.left),
+      Math.round(overlayButtonRect.left),
+    );
+
+    await click(
+      `[data-test-stack-card="${testRealmURL}Person/burcu"] [data-test-edit-button]`,
+    );
+    assert.dom(`[data-test-plural-view-item="0"]`).hasText('Woody');
+    assert.dom(`[data-test-plural-view-item="1"]`).hasText('Buzz');
+    assert.dom(`[data-test-plural-view-item="2"]`).hasText('Jackie');
   });
 });
