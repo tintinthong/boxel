@@ -34,6 +34,19 @@ const formatNumber = (val: number) => {
 };
 
 /* Amount */
+
+class EmbeddedSecForAmount extends Component<typeof AmountField> {
+  <template>
+    <CardContainer @displayBoundaries={{false}} class='container'>
+      <FieldContainer @tag='label' @vertical={{true}}><@fields.currency
+        /></FieldContainer>
+
+      <FieldContainer @tag='label' @vertical={{true}}><@fields.totalAmount
+        /></FieldContainer>
+    </CardContainer>
+  </template>
+}
+
 class EditSecForAmount extends Component<typeof AmountField> {
   @tracked currencyOptions = ['Select', 'RM'];
   get selectedCurrency() {
@@ -114,11 +127,17 @@ class AmountField extends FieldDef {
     description: `Total Amount`,
   });
 
+  static embedded = EmbeddedSecForAmount;
   static edit = EditSecForAmount;
 }
 
 /* Opportunity Form */
 class IsolatedSecForOpportunityForm extends Component<typeof OpportunityForm> {
+  get getCompanyName() {
+    if (!this.args.model.companyName) return '-';
+    return this.args.model.companyName;
+  }
+
   get getFormattedAmount() {
     const amount = this.args.model.amount;
     const hasAmount = amount && amount.totalAmount;
@@ -169,13 +188,17 @@ class IsolatedSecForOpportunityForm extends Component<typeof OpportunityForm> {
       </div>
 
       <div class='right-box'>
-
         <div class='field-input-column'>
           <label>Account Name: </label>
           <@fields.accountName />
         </div>
 
         <div class='field-input-group'>
+          <div class='field-input'>
+            <label>Company Name: </label>
+
+            {{this.getCompanyName}}
+          </div>
           <div class='field-input'>
             <label>Close Date: </label>
             <@fields.closeDate />
@@ -191,12 +214,12 @@ class IsolatedSecForOpportunityForm extends Component<typeof OpportunityForm> {
           <div class='field-input'>
             <label>Percentage: </label>
             {{this.getFormattedPercentage}}
-
           </div>
           <div class='field-input'>
             <label>Forecast Category: </label>
             {{this.getForestCategory}}
           </div>
+
         </div>
       </div>
 
@@ -329,25 +352,29 @@ class EditSecForOpportunityForm extends Component<typeof OpportunityForm> {
   }
 
   <template>
-    <CardContainer @displayBoundaries={{false}} class='container'>
+    <CardContainer @displayBoundaries={{true}} class='container'>
       <FieldContainer @tag='label' @label='Opportunity Name' @vertical={{true}}>
-        <@fields.opportunityName />
+        <@fields.opportunityName @format='edit' />
       </FieldContainer>
 
       <FieldContainer @tag='label' @label='Account Name' @vertical={{true}}>
-        <@fields.accountName />
+        <@fields.accountName @format='edit' />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Company Name' @vertical={{true}}>
+        <@fields.companyName @format='edit' />
       </FieldContainer>
 
       <FieldContainer @tag='label' @label='Close Date' @vertical={{true}}>
-        <@fields.closeDate />
+        <@fields.closeDate @format='edit' />
       </FieldContainer>
 
       <FieldContainer @tag='label' @label='Amount' @vertical={{true}}>
-        <@fields.amount />
+        <@fields.amount @format='edit' />
       </FieldContainer>
 
       <FieldContainer @tag='label' @label='Description' @vertical={{true}}>
-        <@fields.description />
+        <@fields.description @format='edit' />
       </FieldContainer>
 
       <FieldContainer @tag='label' @label='Stage' @vertical={{true}}>
@@ -407,11 +434,47 @@ class EditSecForOpportunityForm extends Component<typeof OpportunityForm> {
 
 class ViewSecForOpportunityForm extends Component<typeof OpportunityForm> {
   <template>
-    {{#if this.args.model.opportunityName}}
-      <CardContainer @displayBoundaries={{true}} class='container'>
+    <div class='field-input-group'>
+      <FieldContainer @tag='label' @label='Opportunity Name' @vertical={{true}}>
         <@fields.opportunityName />
-      </CardContainer>
-    {{/if}}
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Account Name' @vertical={{true}}>
+        <@fields.accountName />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Company Name' @vertical={{true}}>
+        <@fields.companyName />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Close Date' @vertical={{true}}>
+        <@fields.closeDate />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Amount' @vertical={{true}}>
+        <@fields.amount />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Description' @vertical={{true}}>
+        <@fields.description />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Stage' @vertical={{true}}>
+        <@fields.stage />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Percentage' @vertical={{true}}>
+        <@fields.percentage />
+      </FieldContainer>
+
+      <FieldContainer
+        @tag='label'
+        @label='Forecast Category'
+        @vertical={{true}}
+      >
+        <@fields.forecastCategory />
+      </FieldContainer>
+    </div>
 
     <style>
       .container {
@@ -419,9 +482,53 @@ class ViewSecForOpportunityForm extends Component<typeof OpportunityForm> {
         display: grid;
         gap: var(--boxel-sp);
         background-color: #fbfbfb;
+        overflow: hidden;
+      }
+      .field-input-group {
+        overflow: overlay;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        gap: var(--boxel-sp);
       }
     </style>
   </template>
+}
+
+export class OpportunityFormField extends FieldDef {
+  static displayName = 'Opportunity Form';
+  @field opportunityName = contains(StringField, {
+    description: `Opportunity Name`,
+  });
+  @field accountName = linksTo(CrmAccount, {
+    description: `Account Name`,
+  });
+  @field companyName = contains(StringField, {
+    description: `Company Name`,
+  });
+  @field closeDate = contains(DateCard, {
+    description: `Close Date`,
+  });
+  @field amount = contains(AmountField, {
+    description: `Amount`,
+  });
+  @field description = contains(MarkdownField, {
+    description: `Description`,
+  });
+  @field stage = contains(StringField, {
+    description: `Stage`,
+  });
+  @field percentage = contains(NumberField, {
+    description: `Percentage`,
+  });
+  @field forecastCategory = contains(StringField, {
+    description: `Forecast Category`,
+  });
+
+  static isolated = IsolatedSecForOpportunityForm;
+  static edit = EditSecForOpportunityForm;
+  static embedded = ViewSecForOpportunityForm;
+  static atom = ViewSecForOpportunityForm;
 }
 
 export class OpportunityForm extends CardDef {
@@ -431,6 +538,9 @@ export class OpportunityForm extends CardDef {
   });
   @field accountName = linksTo(CrmAccount, {
     description: `Account Name`,
+  });
+  @field companyName = contains(StringField, {
+    description: `Company Name`,
   });
   @field closeDate = contains(DateCard, {
     description: `Close Date`,

@@ -1,7 +1,12 @@
 import { UserName } from './user-name';
 import { UserEmail } from './user-email';
 import { AddressInfo } from './address-info';
-import { CardDef, field, contains } from 'https://cardstack.com/base/card-api';
+import {
+  CardDef,
+  field,
+  contains,
+  FieldDef,
+} from 'https://cardstack.com/base/card-api';
 import { Component } from 'https://cardstack.com/base/card-api';
 import StringField from 'https://cardstack.com/base/string';
 import { FieldContainer, CardContainer } from '@cardstack/boxel-ui/components';
@@ -134,40 +139,7 @@ class Isolated extends Component<typeof ContactForm> {
 
 class View extends Component<typeof ContactForm> {
   <template>
-    <CardContainer @displayBoundaries={{true}} class='container'>
-      <div class='content'>
-        <label>User</label>
-        <h2><@fields.name /></h2>
-      </div>
-    </CardContainer>
-
-    <style>
-      .container {
-        padding: var(--boxel-sp-lg);
-        display: grid;
-        gap: var(--boxel-sp);
-        background-color: #eeeeee50;
-      }
-      .content {
-        color: var(--boxel-700);
-      }
-      h2 {
-        margin: 0px;
-      }
-      .icon-profile {
-        position: absolute;
-        top: 1px;
-        right: 1px;
-        width: 50px;
-        height: 50px;
-      }
-    </style>
-  </template>
-}
-
-class Edit extends Component<typeof ContactForm> {
-  <template>
-    <CardContainer @displayBoundaries={{true}} class='container'>
+    <CardContainer @displayBoundaries={{false}} class='container'>
       <FieldContainer
         @tag='label'
         @label='Title'
@@ -186,17 +158,68 @@ class Edit extends Component<typeof ContactForm> {
         <@fields.phone />
       </FieldContainer>
 
+      <FieldContainer @tag='label' @label='Fax' @vertical={{true}}>
+        <@fields.fax />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Department' @vertical={{true}}>
+        <@fields.department />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Address Info' @vertical={{true}}>
+        <@fields.addressInfo />
+      </FieldContainer>
+    </CardContainer>
+
+    <style>
+      .container {
+        display: grid;
+        gap: var(--boxel-sp-lg);
+        overflow: hidden;
+      }
+      .content {
+        color: var(--boxel-700);
+      }
+      h2 {
+        margin: 0px;
+      }
+    </style>
+  </template>
+}
+
+class Edit extends Component<typeof ContactForm> {
+  <template>
+    <CardContainer @displayBoundaries={{true}} class='container'>
+      <FieldContainer
+        @tag='label'
+        @label='Title'
+        @vertical={{true}}
+      ><@fields.title @format='edit' /></FieldContainer>
+
+      <FieldContainer @tag='label' @label='User' @vertical={{true}}>
+        <@fields.name @format='edit' />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Email' @vertical={{true}}>
+        <@fields.email @format='edit' />
+      </FieldContainer>
+
+      <FieldContainer @tag='label' @label='Phone' @vertical={{true}}>
+        <@fields.phone @format='edit' />
+      </FieldContainer>
+
       <FieldContainer @tag='label' @label='Fax' @vertical={{true}}><@fields.fax
+          @format='edit'
         /></FieldContainer>
 
       <FieldContainer
         @tag='label'
         @label='Department'
         @vertical={{true}}
-      ><@fields.department /></FieldContainer>
+      ><@fields.department @format='edit' /></FieldContainer>
 
       <FieldContainer @tag='label' @label='Address Info' @vertical={{true}}>
-        <@fields.addressInfo />
+        <@fields.addressInfo @format='edit' />
       </FieldContainer>
     </CardContainer>
 
@@ -208,6 +231,36 @@ class Edit extends Component<typeof ContactForm> {
       }
     </style>
   </template>
+}
+
+export class ContactFormField extends FieldDef {
+  @field title = contains(StringField, {
+    description: `Contact Form Title`,
+  });
+  @field name = contains(UserName, {
+    description: `User's Full Name`,
+  });
+  @field email = contains(UserEmail, {
+    description: `User's Email`,
+  });
+  @field phone = contains(StringField, {
+    description: `User's phone number`,
+  });
+  @field fax = contains(StringField, {
+    description: `User's Fax Number`,
+  });
+  @field department = contains(StringField, {
+    description: `User's Department`,
+  });
+  @field addressInfo = contains(AddressInfo, {
+    description: `User's AddressInfo`,
+  });
+
+  static displayName = 'Contact Form';
+  static isolated = Isolated;
+  static embedded = View;
+  static atom = View;
+  static edit = Edit;
 }
 
 export class ContactForm extends CardDef {
