@@ -2,13 +2,13 @@ import { fn } from '@ember/helper';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import FreestyleUsage from 'ember-freestyle/components/freestyle/usage';
-
 import BoxelHeader from '../header/index.gts';
 import BoxelCardContainer from './index.gts';
 
 export default class CardContainerUsage extends Component {
   @tracked displayBoundaries = true;
   @tracked isHighlighted = false;
+  @tracked backgroundColor = '';
 
   <template>
     {{! template-lint-disable no-inline-styles }}
@@ -18,6 +18,7 @@ export default class CardContainerUsage extends Component {
       </:description>
       <:example>
         <BoxelCardContainer
+          @backgroundColor={{this.backgroundColor}}
           @displayBoundaries={{this.displayBoundaries}}
           @isHighlighted={{this.isHighlighted}}
         >
@@ -31,6 +32,13 @@ export default class CardContainerUsage extends Component {
         </BoxelCardContainer>
       </:example>
       <:api as |Args|>
+        <Args.String
+          @name='backgroundColor'
+          @description='(styling) Displays card background color'
+          @defaultValue={{''}}
+          @value={{this.backgroundColor}}
+          @onInput={{fn (mut this.backgroundColor)}}
+        />
         <Args.Bool
           @name='displayBoundaries'
           @description='(styling) Displays card boundary'
