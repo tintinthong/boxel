@@ -157,7 +157,16 @@ class DonutChart extends GlimmerComponent<DonutChartSignature> {
       .select('.donut-chart')
       .append('div')
       .attr('class', 'tooltip')
-      .style('opacity', 0);
+      .style('opacity', 0)
+      .style('position', 'absolute')
+      .style('background-color', '#ffffff')
+      .style('border', 'solid')
+      .style('border-width', '1px')
+      .style('border-radius', '8px')
+      .style('padding', '0.5rem')
+      .style('color', 'black')
+      .style('width', '160px')
+      .style('pointer-events', 'none');
 
     const arc = d3
       .arc()
@@ -183,10 +192,10 @@ class DonutChart extends GlimmerComponent<DonutChartSignature> {
         tooltip
           .style('opacity', 1)
           .html(
-            `<div><strong>Status</strong><br>${d.data.name}<br>---<br>Number of members: ${d.data.value}</div>`,
+            `<div><strong>Status</strong><br>${d.data.name}<hr>Number of members: ${d.data.value}</div>`,
           )
-          .style('top', event.pageY - 10 + 'px')
-          .style('left', event.pageX + 10 + 'px');
+          .style('left', event.layerX + 10 + 'px')
+          .style('top', event.layerY + 10 + 'px');
       })
       .on('mouseout', function (event, d) {
         d3.select(this).style('opacity', 1);
@@ -217,16 +226,8 @@ class DonutChart extends GlimmerComponent<DonutChartSignature> {
         gap: var(--boxel-sp-sm);
         align-items: center;
       }
-      .donut-chart-container .donut-chart div.tooltip {
-        position: absolute;
-        text-align: center;
-        padding: 0.5rem;
-        background: #ffffff;
-        color: #313639;
-        border: 1px solid #313639;
-        border-radius: 8px;
-        pointer-events: none;
-        font-size: 1.3rem;
+      .donut-chart {
+        position: relative;
       }
     </style>
   </template>
