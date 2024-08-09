@@ -18,6 +18,7 @@ import {
 } from '@cardstack/boxel-ui/components';
 import GlimmerComponent from '@glimmer/component';
 import { action } from '@ember/object';
+import { htmlSafe } from '@ember/template';
 
 // @ts-ignore
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
@@ -28,6 +29,13 @@ class ContactMembersFieldEdit extends Component<typeof ContactMembersField> {
       name: this.args.model.responseStatus,
     };
   }
+
+  get responseStatusFieldStyle() {
+    let css: string[] = [];
+    css.push('margin-top:var(--boxel-sp-sm);');
+    return htmlSafe(css.join(' '));
+  }
+
   @action updateResponseStatus(type: { name: string }) {
     this.args.model.responseStatus = type.name;
   }
@@ -35,11 +43,17 @@ class ContactMembersFieldEdit extends Component<typeof ContactMembersField> {
   private responseStatuses = [{ name: 'Sent' }, { name: 'Responded' }];
 
   <template>
-    <@fields.contactForm />
+    <FieldContainer
+      @label='Contact Member'
+      data-test-field='contact-member'
+      @vertical={{true}}
+    >
+      <@fields.contactForm />
+    </FieldContainer>
     <FieldContainer
       @label='Response Status'
       data-test-field='contact-form-response-status'
-      class='field'
+      style={{this.responseStatusFieldStyle}}
       @vertical={{true}}
     >
       <BoxelSelect
@@ -70,6 +84,13 @@ class LeadMembersFieldEdit extends Component<typeof LeadMembersField> {
       name: this.args.model.responseStatus,
     };
   }
+
+  get responseStatusFieldStyle() {
+    let css: string[] = [];
+    css.push('margin-top:var(--boxel-sp-sm);');
+    return htmlSafe(css.join(' '));
+  }
+
   @action updateResponseStatus(type: { name: string }) {
     this.args.model.responseStatus = type.name;
   }
@@ -77,11 +98,17 @@ class LeadMembersFieldEdit extends Component<typeof LeadMembersField> {
   private responseStatuses = [{ name: 'Sent' }, { name: 'Responded' }];
 
   <template>
-    <@fields.leadForm />
+    <FieldContainer
+      @label='Lead Member'
+      data-test-field='lead-member'
+      @vertical={{true}}
+    >
+      <@fields.leadForm />
+    </FieldContainer>
     <FieldContainer
       @label='Response Status'
       data-test-field='lead-form-response-status'
-      class='field'
+      style={{this.responseStatusFieldStyle}}
       @vertical={{true}}
     >
       <BoxelSelect
