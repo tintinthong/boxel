@@ -133,7 +133,7 @@ class LeadMembersField extends FieldDef {
   static edit = LeadMembersFieldEdit;
 }
 
-interface DonutChartSignature {
+interface ChartSignature {
   Args: {
     numberSent: number;
     numberResponsed: number;
@@ -141,7 +141,7 @@ interface DonutChartSignature {
   Element: HTMLElement;
 }
 
-class DonutChart extends GlimmerComponent<DonutChartSignature> {
+class DonutChart extends GlimmerComponent<ChartSignature> {
   get displayDonut() {
     if (typeof document === 'undefined') {
       return;
@@ -260,15 +260,7 @@ class DonutChart extends GlimmerComponent<DonutChartSignature> {
   </template>
 }
 
-interface HorizontalBarChartSignature {
-  Args: {
-    numberSent: number;
-    numberResponsed: number;
-  };
-  Element: HTMLElement;
-}
-
-class HorizontalBarChart extends GlimmerComponent<HorizontalBarChartSignature> {
+class HorizontalBarChart extends GlimmerComponent<ChartSignature> {
   get displayHorizontalBar() {
     if (typeof document === 'undefined') {
       return;
@@ -357,6 +349,96 @@ class HorizontalBarChart extends GlimmerComponent<HorizontalBarChartSignature> {
   </template>
 }
 
+class VerticalBarChart extends GlimmerComponent<ChartSignature> {
+  get displayVerticalBar() {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const data = [
+      { name: 'Sent', value: this.args.numberSent },
+      { name: 'Responded', value: this.args.numberResponsed },
+    ];
+
+    const width = 400;
+    const height = 250;
+    const marginTop = 40;
+    const marginRight = 20;
+    const marginBottom = 40;
+    const marginLeft = 100;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', width.toString());
+    svg.setAttribute('height', height.toString());
+
+    // create vertical bar chart with category/value axis label and value axis text
+    const x = d3
+      .scaleBand()
+      .domain(data.map((d) => d.name))
+      .range([0, width - marginLeft - marginRight])
+      .padding(0.1);
+
+    const y = d3
+      .scaleLinear()
+      .domain([0, d3.max(data, (d) => d.value)])
+      .range([height - marginTop - marginBottom, 0]);
+
+    const g = d3
+      .select(svg)
+      .append('g')
+      .attr('transform', `translate(${marginLeft}, ${marginTop})`);
+
+    g.append('g')
+      .selectAll('rect')
+      .data(data)
+      .enter()
+      .append('rect')
+      .attr('x', (d) => x(d.name))
+      .attr('y', (d) => y(d.value))
+      .attr('width', x.bandwidth())
+      .attr('height', (d) => height - marginTop - marginBottom - y(d.value))
+      .attr('fill', 'steelblue');
+
+    g.append('g')
+      .selectAll('text')
+      .data(data)
+      .enter()
+      .append('text')
+      .attr('x', (d) => x(d.name) + x.bandwidth() / 2)
+      .attr('y', (d) => y(d.value) - 5)
+      .attr('dy', '0.35em')
+      .text((d) => d.value);
+
+    g.append('g').call(d3.axisLeft(y));
+
+    g.append('g')
+      .attr('transform', `translate(0, ${height - marginTop - marginBottom})`)
+      .call(d3.axisBottom(x));
+
+    return svg;
+  }
+
+  <template>
+    <div class='vertical-bar-chart-container'>
+      <h4>Number of Members</h4>
+      <div class='vertical-bar-chart'>
+        {{this.displayVerticalBar}}
+      </div>
+    </div>
+    <style>
+      .vertical-bar-chart-container {
+        display: flex;
+        flex-direction: column;
+        gap: var(--boxel-sp-sm);
+        align-items: center;
+      }
+      .vertical-bar-chart {
+        position: relative;
+      }
+    </style>
+  </template>
+}
+
 class Isolated extends Component<typeof CampaignMembersChart> {
   get numberSent() {
     let { model } = this.args;
@@ -396,6 +478,10 @@ class Isolated extends Component<typeof CampaignMembersChart> {
     return this.chartType === 'Horizontal Bar';
   }
 
+  get isChartTypeVerticalBar() {
+    return this.chartType === 'Vertical Bar';
+  }
+
   <template>
     <div class='campaign-members-chart-isolated'>
       <FieldContainer @label='Campaign Name' class='field'>
@@ -409,6 +495,12 @@ class Isolated extends Component<typeof CampaignMembersChart> {
       {{/if}}
       {{#if this.isChartTypeHorizontalBar}}
         <HorizontalBarChart
+          @numberSent={{this.numberSent}}
+          @numberResponsed={{this.numberResponsed}}
+        />
+      {{/if}}
+      {{#if this.isChartTypeVerticalBar}}
+        <VerticalBarChart
           @numberSent={{this.numberSent}}
           @numberResponsed={{this.numberResponsed}}
         />
