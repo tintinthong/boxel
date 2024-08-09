@@ -278,6 +278,8 @@ class HorizontalBarChart extends GlimmerComponent<ChartSignature> {
     const marginBottom = 40;
     const marginLeft = 100;
 
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', width.toString());
     svg.setAttribute('height', height.toString());
@@ -307,14 +309,14 @@ class HorizontalBarChart extends GlimmerComponent<ChartSignature> {
       .attr('y', (d) => y(d.name))
       .attr('width', (d) => x(d.value))
       .attr('height', y.bandwidth())
-      .attr('fill', 'steelblue');
+      .attr('fill', (d) => color(d.name));
 
     g.append('g')
       .selectAll('text')
       .data(data)
       .enter()
       .append('text')
-      .attr('x', (d) => x(d.value) + 5)
+      .attr('x', (d) => x(d.value) - 20)
       .attr('y', (d) => y(d.name) + y.bandwidth() / 2)
       .attr('dy', '0.35em')
       .text((d) => d.value);
@@ -367,6 +369,8 @@ class VerticalBarChart extends GlimmerComponent<ChartSignature> {
     const marginBottom = 40;
     const marginLeft = 100;
 
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', width.toString());
     svg.setAttribute('height', height.toString());
@@ -397,7 +401,7 @@ class VerticalBarChart extends GlimmerComponent<ChartSignature> {
       .attr('y', (d) => y(d.value))
       .attr('width', x.bandwidth())
       .attr('height', (d) => height - marginTop - marginBottom - y(d.value))
-      .attr('fill', 'steelblue');
+      .attr('fill', (d) => color(d.name));
 
     g.append('g')
       .selectAll('text')
@@ -405,7 +409,7 @@ class VerticalBarChart extends GlimmerComponent<ChartSignature> {
       .enter()
       .append('text')
       .attr('x', (d) => x(d.name) + x.bandwidth() / 2)
-      .attr('y', (d) => y(d.value) - 5)
+      .attr('y', (d) => y(d.value) + 15)
       .attr('dy', '0.35em')
       .text((d) => d.value);
 
