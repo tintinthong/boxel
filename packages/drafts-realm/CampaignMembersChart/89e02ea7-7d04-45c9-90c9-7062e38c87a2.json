@@ -3,7 +3,7 @@
     "type": "card",
     "attributes": {
       "name": "Email July 2024",
-      "chartType": "Donut",
+      "chartType": "Horizontal Bar",
       "contactMembers": [
         {
           "responseStatus": "Sent"
