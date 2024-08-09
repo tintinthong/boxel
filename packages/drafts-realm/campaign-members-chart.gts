@@ -606,10 +606,19 @@ class Edit extends Component<typeof CampaignMembersChart> {
 export class CampaignMembersChart extends CardDef {
   static displayName = 'CampaignMembersChart';
 
-  @field name = contains(StringField);
-  @field chartType = contains(StringField);
-  @field contactMembers = containsMany(ContactMembersField);
-  @field leadMembers = containsMany(LeadMembersField);
+  @field name = contains(StringField, {
+    description: 'The campaign name',
+  });
+  @field chartType = contains(StringField, {
+    description:
+      'Chart type that will be displayed for showing sent and responded members',
+  });
+  @field contactMembers = containsMany(ContactMembersField, {
+    description: 'Contact members of the campaign, each with response status',
+  });
+  @field leadMembers = containsMany(LeadMembersField, {
+    description: 'Lead members of the campaign, each with response status',
+  });
 
   static isolated = Isolated;
   static embedded = Embedded;
